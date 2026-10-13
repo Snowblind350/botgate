@@ -239,6 +239,8 @@ https://www.ip2location.com/free/visitor-blocker
 
 When downloading, select **"Apache 2.0 - 2.3 .htaccess deny"** as the output format. Other formats offered on that page (Apache 2.4, Nginx, CIDR, iptables, etc.) are not recognized by BotGate's parser.
 
+Choose **IPv4** lists. BotGate listens on IPv4 only, so IPv6 ranges in a geo file are skipped with a warning.
+
 IP2Location recommends refreshing these lists monthly, since IP allocations change over time.
 
 ### Performance

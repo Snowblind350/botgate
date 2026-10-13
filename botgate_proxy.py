@@ -415,6 +415,7 @@ def load_geo_file(path):
     ends) for fast binary-search containment checks. Non-'deny from'
     lines (comments, <Limit>, order/allow directives) are ignored."""
     ranges = []
+    skipped_ipv6 = 0
     try:
         with open(path, "r", errors="ignore") as f:
             for line in f:
@@ -427,9 +428,17 @@ def load_geo_file(path):
                 except ValueError:
                     log.warning(f"Skipping malformed entry in {path}: {cidr!r}")
                     continue
+                if net.version != 4:
+                    # Listeners are IPv4-only, and an IPv6 range does not fit in
+                    # the array below (OverflowError at startup).
+                    skipped_ipv6 += 1
+                    continue
                 ranges.append((int(net.network_address), int(net.broadcast_address)))
     except OSError as e:
         log.warning(f"Could not read geo file {path}: {e}")
+    if skipped_ipv6:
+        log.warning(f"Skipped {skipped_ipv6} IPv6 range(s) in {path}: "
+                    f"BotGate listens on IPv4 only.")
 
     ranges.sort()
     starts = array.array("L", (r[0] for r in ranges))
